@@ -1,6 +1,5 @@
 from get_data import *
 
-
 print("Welcome to the Schedule App")
 
 print("Reading your data...")
