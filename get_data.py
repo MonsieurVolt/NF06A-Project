@@ -4,7 +4,7 @@ import openpyxl
 dataframe = openpyxl.load_workbook("cheat.xlsx")
 
 dataframe_active = dataframe.active
-c_file = CDLL("./test.so")
+c_file = CDLL("./a.so")
 
 
 class date(Structure):
@@ -52,7 +52,9 @@ for i in range(2, dataframe_active.max_row+1):
 
 def print_datas():
     a = c_file.test(dataArray, 4)
-
+    print("python : ")
+    for i in range(4):
+        print(a[i])
     print('{:<40} {:<12} {:<12} {:<4}'.format("Task name",
           "Release Date", "End Date", "Processing time"))
     for i in range(2, dataframe_active.max_row+1):
@@ -113,9 +115,7 @@ def change_datas():
         dataframe_active.cell(row=id+1, column=2).value = date[1]
         # modifiate the array
         dataArray[id-1].release_date = date[0]
-        a = c_file.test(dataArray, 4)
-        for i in range(10):
-            print(a[i])
+
     if choice == 3:
 
         print("Enter the deadline date : ")
