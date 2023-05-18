@@ -4,34 +4,34 @@ import openpyxl
 dataframe = openpyxl.load_workbook("cheat.xlsx")
 
 dataframe_active = dataframe.active
-c_file = CDLL("./c.so")
+c_file = CDLL("./test.so")
 
 
-class Date(Structure):
-    _fields_ = [('day', c_int), ('month', c_int), ('year', c_int)]
+class date(Structure):
+    _fields_ = [('year', c_int), ('month', c_int), ('day', c_int)]
 
 
-class Task(Structure):
-    _fields_ = [('id', c_int), ('rdate', Date), ('ddate', Date), ('nbdays', c_int)
+class job(Structure):
+    _fields_ = [('id', c_int), ('processing_time', c_int),  ('release_date', date), ('due_date', date), ('prtf_value', c_float)
                 ]
 
 
 # array with the excel datas
-dataArray = (Task*100)()
+dataArray = (job*100)()
 
 
-c_file.test.argtypes = [POINTER(Task), c_int]
+c_file.test.argtypes = [POINTER(job), c_int]
 c_file.test.restype = POINTER(c_int)
 # create the object date from the string : 01/01/2000 -> Date(01,01,2000)
 
 
 def HandleDate(str):
     date_split = str.split(" ")[0].split('/')
-    date = Date()
-    date.day = int(date_split[0])
-    date.month = int(date_split[1])
-    date.year = int(date_split[2])
-    return date
+    new_date = date()
+    new_date.day = int(date_split[0])
+    new_date.month = int(date_split[1])
+    new_date.year = int(date_split[2])
+    return new_date
 
 
 # dict use to associate the id of a task with the name
@@ -41,24 +41,30 @@ len = 0
 for i in range(2, dataframe_active.max_row+1):
     idName[len] = dataframe_active.cell(row=i, column=1).value
     dataArray[i-2].id = len
-    dataArray[i-2].nbdays = dataframe_active.cell(row=i, column=4).value
     dataArray[i -
-              2].rdate = HandleDate(str(dataframe_active.cell(row=i, column=2).value))
+              2].processing_time = dataframe_active.cell(row=i, column=4).value
     dataArray[i -
-              2].ddate = HandleDate(str(dataframe_active.cell(row=i, column=3).value))
+              2].release_date = HandleDate(str(dataframe_active.cell(row=i, column=2).value))
+    dataArray[i -
+              2].due_date = HandleDate(str(dataframe_active.cell(row=i, column=3).value))
     len += 1
 
 
 def print_datas():
+    a = c_file.test(dataArray, 4)
+
     print('{:<40} {:<12} {:<12} {:<4}'.format("Task name",
           "Release Date", "End Date", "Processing time"))
     for i in range(2, dataframe_active.max_row+1):
 
         name = dataframe_active.cell(row=i, column=1).value
-        rdate = str(dataframe_active.cell(row=i, column=2).value).split(" ")[0]
-        ddate = str(dataframe_active.cell(row=i, column=3).value).split(" ")[0]
-        nbdays = str(dataframe_active.cell(row=i, column=4).value)
-        print('{:<40} {:<12} {:<12} {:<4}'.format(name, rdate, ddate, nbdays))
+        release_date = str(dataframe_active.cell(
+            row=i, column=2).value).split(" ")[0]
+        due_date = str(dataframe_active.cell(
+            row=i, column=3).value).split(" ")[0]
+        processing_time = str(dataframe_active.cell(row=i, column=4).value)
+        print('{:<40} {:<12} {:<12} {:<4}'.format(
+            name, release_date, due_date, processing_time))
 
 # find the id associate with a name of a task
 
@@ -76,11 +82,11 @@ def GetDate():
     day = input("Enter the day : ")
     month = input("Enter the Month : ")
     year = input("Enter the year : ")
-    date = Date()
-    date.day = int(day)
-    date.month = int(month)
-    date.year = int(year)
-    return (date, '/'.join([day, month, year]))
+    new_date = date()
+    new_date.day = int(day)
+    new_date.month = int(month)
+    new_date.year = int(year)
+    return (new_date, '/'.join([day, month, year]))
 
 
 def change_datas():
@@ -106,7 +112,7 @@ def change_datas():
         # modifiate the excel
         dataframe_active.cell(row=id+1, column=2).value = date[1]
         # modifiate the array
-        dataArray[id-1].rdate = date[0]
+        dataArray[id-1].release_date = date[0]
         a = c_file.test(dataArray, 4)
         for i in range(10):
             print(a[i])
@@ -115,10 +121,10 @@ def change_datas():
         print("Enter the deadline date : ")
         date = GetDate()
         dataframe_active.cell(row=id+1, column=3).value = date[1]
-        dataArray[id-1].ddate = date[0]
+        dataArray[id-1].due_date = date[0]
 
     if choice == 4:
 
-        nbdays = int(input("Enter the number of days : "))
-        dataframe_active.cell(row=id+1, column=4).value = nbdays
-        dataArray[id-1].nbdays = nbdays
+        processing_time = int(input("Enter the number of days : "))
+        dataframe_active.cell(row=id+1, column=4).value = processing_time
+        dataArray[id-1].processing_time = processing_time
