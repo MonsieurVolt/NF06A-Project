@@ -58,25 +58,14 @@ void sortAscendingOrder(job *jobs_list, int listSize)
 
 int main(){
     int ind,i;
-    time_t t = time(NULL);
-    struct tm tm=*localtime(&t);
-    date date_of_the_day;
-    date_of_the_day.year=tm.tm_year+1900;
-    date_of_the_day.month=tm.tm_mon+1;
-    date_of_the_day.day=tm.tm_mday;
-    /*
     job *jobs_list;
-    int number_of_jobs,ind,i;
     time_t t = time(NULL);
     struct tm tm=*localtime(&t);
     date date_of_the_day;
     date_of_the_day.year=tm.tm_year+1900;
     date_of_the_day.month=tm.tm_mon+1;
     date_of_the_day.day=tm.tm_mday;
-    printf("Enter the number of jobs :\n");
-    scanf("%d", &number_of_jobs);
-    jobs_list = (job*)calloc(number_of_jobs,sizeof(job)); */
-    for (ind=0; ind<number_of_jobs ; ind++){
+    for (ind=0; ind< ; ind++){
         jobs_list[ind].prtf_value=prtf_calculation(date_of_the_day,jobs_list[ind].processing_time,jobs_list[ind].release_date,jobs_list[ind].due_date);
     }
     sortAscendingOrder(jobs_list,number_of_jobs);
