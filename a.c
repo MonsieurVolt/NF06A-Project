@@ -91,7 +91,7 @@ __declspec(dllexport) int *test(job *jobs_list, int size)
     {
 
         list_of_id[i] = jobs_list[i].id;
-        printf("%f\n", jobs_list[i].prtf_value);
+        // printf("%f\n", jobs_list[i].prtf_value);
     } /* On a la liste d'ID trié dans le bon ordre d'exécution */
 
     return list_of_id;

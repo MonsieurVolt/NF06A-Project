@@ -1,11 +1,6 @@
 from ctypes import *
 import openpyxl
 
-dataframe = openpyxl.load_workbook("cheat.xlsx")
-
-dataframe_active = dataframe.active
-c_file = CDLL("./a.so")
-
 
 class date(Structure):
     _fields_ = [('year', c_int), ('month', c_int), ('day', c_int)]
@@ -16,12 +11,38 @@ class job(Structure):
                 ]
 
 
-# array with the excel datas
+c_file = CDLL("./a.so")
+
 dataArray = (job*100)()
-
-
 c_file.test.argtypes = [POINTER(job), c_int]
 c_file.test.restype = POINTER(c_int)
+
+
+idName = {}
+len = 0
+dataframe = None
+dataframe_active = None
+
+
+def readFiles(filename):
+    global len, idName, dataframe, dataframe_active
+    dataframe = openpyxl.load_workbook(filename)
+    dataframe_active = dataframe.active
+    for i in range(2, dataframe_active.max_row+1):
+        idName[len] = dataframe_active.cell(row=i, column=1).value
+        dataArray[i-2].id = len
+        dataArray[i -
+                  2].processing_time = dataframe_active.cell(row=i, column=4).value
+        dataArray[i -
+                  2].release_date = HandleDate(str(dataframe_active.cell(row=i, column=2).value))
+        dataArray[i -
+                  2].due_date = HandleDate(str(dataframe_active.cell(row=i, column=3).value))
+        len += 1
+
+
+# array with the excel datas
+
+
 # create the object date from the string : 01/01/2000 -> Date(01,01,2000)
 
 
@@ -35,26 +56,12 @@ def HandleDate(str):
 
 
 # dict use to associate the id of a task with the name
-idName = {}
+
 # number of row in the excel
-len = 0
-for i in range(2, dataframe_active.max_row+1):
-    idName[len] = dataframe_active.cell(row=i, column=1).value
-    dataArray[i-2].id = len
-    dataArray[i -
-              2].processing_time = dataframe_active.cell(row=i, column=4).value
-    dataArray[i -
-              2].release_date = HandleDate(str(dataframe_active.cell(row=i, column=2).value))
-    dataArray[i -
-              2].due_date = HandleDate(str(dataframe_active.cell(row=i, column=3).value))
-    len += 1
 
 
 def print_datas():
-    a = c_file.test(dataArray, 4)
-    print("python : ")
-    for i in range(4):
-        print(a[i])
+    print("\n")
     print('{:<40} {:<12} {:<12} {:<4}'.format("Task name",
           "Release Date", "End Date", "Processing time"))
     for i in range(2, dataframe_active.max_row+1):
@@ -100,19 +107,17 @@ def change_datas():
         return
     choice = int(input(
         "Enter the Number of the field You Want to modifiate : \n 1) Name \n 2) Release Date \n 3) End Date \n 4) Processing Time \n : "))
-    for key, value in idName.items():
-        print(key, value)
 
     if choice == 1:
         name = input("Enter the new name of the task : ")
         idName[id] = name
-        dataframe_active.cell(row=id+1, column=1).value = name
+        dataframe_active.cell(row=id+2, column=1).value = name
         dataframe.save("cheat.xlsx")
     if choice == 2:
         print("Enter the release date : ")
         date = GetDate()
         # modifiate the excel
-        dataframe_active.cell(row=id+1, column=2).value = date[1]
+        dataframe_active.cell(row=id+2, column=2).value = date[1]
         # modifiate the array
         dataArray[id-1].release_date = date[0]
 
@@ -120,11 +125,25 @@ def change_datas():
 
         print("Enter the deadline date : ")
         date = GetDate()
-        dataframe_active.cell(row=id+1, column=3).value = date[1]
+        dataframe_active.cell(row=id+2, column=3).value = date[1]
         dataArray[id-1].due_date = date[0]
 
     if choice == 4:
 
         processing_time = int(input("Enter the number of days : "))
-        dataframe_active.cell(row=id+1, column=4).value = processing_time
+        dataframe_active.cell(row=id+2, column=4).value = processing_time
         dataArray[id-1].processing_time = processing_time
+
+
+def analyse():
+    global len
+
+    print("\nBased on the prtf method, the best order to do your tasks is : ")
+    order = c_file.test(dataArray, len)
+    for i in range(len):
+        print(idName[order[i]])
+
+
+def Exit(filename):
+    print("Exit...")
+    dataframe.save(filename)
