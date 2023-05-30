@@ -1,7 +1,15 @@
+##
+# @file get_data.py
+# @brief contain all the function called by the main menu
+
+
+
 from ctypes import *
 import openpyxl
 
 
+##
+# 
 class date(Structure):
     _fields_ = [('year', c_int), ('month', c_int), ('day', c_int)]
 
@@ -9,6 +17,7 @@ class date(Structure):
 class job(Structure):
     _fields_ = [('id', c_int), ('processing_time', c_int),  ('release_date', date), ('due_date', date), ('prtf_value', c_float)
                 ]
+    
 
 
 c_file = CDLL("./a.so")
@@ -87,15 +96,29 @@ def find_id(seach_str, name_id):
 # get the date enter by the user
 
 
+def checkInput(message, min, max):
+    while True:
+        try:
+            choice = int(
+                input("Enter the" + message+" : "))
+            if min <= choice <= max:
+                break
+            else:
+                print("The", message, "must be between", min, "and", max)
+        except ValueError:
+            print("This is not an integer")
+    return choice
+
+
 def GetDate():
-    day = input("Enter the day : ")
-    month = input("Enter the Month : ")
-    year = input("Enter the year : ")
+    day = checkInput("day", 1, 31)
+    month = checkInput("month", 1, 12)
+    year = checkInput("year", 2000, 2100)
     new_date = date()
     new_date.day = int(day)
     new_date.month = int(month)
     new_date.year = int(year)
-    return (new_date, '/'.join([day, month, year]))
+    return (new_date, '/'.join([str(day), str(month), str(year)]))
 
 
 def change_datas():
@@ -105,14 +128,21 @@ def change_datas():
     if id == None:
         print("No matching task with the name ")
         return
-    choice = int(input(
-        "Enter the Number of the field You Want to modifiate : \n 1) Name \n 2) Release Date \n 3) End Date \n 4) Processing Time \n : "))
+    while True:
+        try:
+            choice = int(input(
+                "Enter the Number of the field You Want to modifiate : \n 1) Name \n 2) Release Date \n 3) End Date \n 4) Processing Time \n : "))
+            if 1 <= choice <= 4:
+                break
+            else:
+                print("The integer must be between 1 and 4")
+        except ValueError:
+            print("This is not an integer")
 
     if choice == 1:
         name = input("Enter the new name of the task : ")
         idName[id] = name
         dataframe_active.cell(row=id+2, column=1).value = name
-        dataframe.save("cheat.xlsx")
     if choice == 2:
         print("Enter the release date : ")
         date = GetDate()
@@ -129,8 +159,16 @@ def change_datas():
         dataArray[id-1].due_date = date[0]
 
     if choice == 4:
+        while True:
+            try:
+                processing_time = int(input("Enter the number of days : "))
+                if 0 <= choice <= 1000:
+                    break
+                else:
+                    print("The integer must be between 0 and 1000")
+            except ValueError:
+                print("This is not an integer")
 
-        processing_time = int(input("Enter the number of days : "))
         dataframe_active.cell(row=id+2, column=4).value = processing_time
         dataArray[id-1].processing_time = processing_time
 

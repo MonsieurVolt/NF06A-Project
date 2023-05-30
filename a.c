@@ -1,3 +1,13 @@
+/**
+ * @file a.c
+ * @author your name (you@domain.com)
+ * @brief efhfudfo
+ * @version 0.1
+ * @date 2023-05-30
+ *
+ * @copyright Copyright (c) 2023
+ *
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -19,6 +29,13 @@ typedef struct
     float prtf_value;
 } job;
 
+/**
+ * @brief Calculates the time difference in days between today's date and a given date.
+ * @param[in] date_of_the_day Current date in date format (day in numbers, month in numbers and year in numbers)
+ * @param[in] date_to_convert Date to be converted in date format (day in numbers, month in numbers and year in numbers)
+ * @param[out] diff_time Time difference in days between the date to be converted and today's date.
+ * @return Time difference in days between the date to be converted and today's date.
+ */
 float convert_date_to_day(date date_of_the_day, date date_to_convert)
 {
     float diff_time;
@@ -28,22 +45,32 @@ float convert_date_to_day(date date_of_the_day, date date_to_convert)
     day_for_the_month_of_the_day = conversion_month_by_day[(date_of_the_day.month - 1)];
     day_for_the_month_to_convert = conversion_month_by_day[(date_to_convert.month - 1)];
     diff_time += day_for_the_month_to_convert - day_for_the_month_of_the_day + date_to_convert.day - date_of_the_day.day; /* ajout mois et jour*/
-    // printf("%d :: %d\n", day_for_the_month_of_the_day, day_for_the_month_to_convert);
-    // printf("%d :: %d :: %d\n", date_to_convert.day, date_to_convert.month, date_to_convert.year);
-    // printf(": %f\n", diff_time);
     return diff_time;
 }
 
+/**
+ * @brief On teste
+ *
+ * @param date_of_the_day
+ * @param processing_time
+ * @param release_date
+ * @param due_date
+ * @return float
+ */
 float prtf_calculation(date date_of_the_day, int processing_time, date release_date, date due_date)
 {
     float prtf_value, diff_time;
 
     diff_time = convert_date_to_day(date_of_the_day, release_date);
     prtf_value = 2 * fmax(0, diff_time) + processing_time; /* 0 is the current day */
-    // printf("%f\n", prtf_value);
     return prtf_value;
 }
-
+/**
+ * @brief Test 3
+ *
+ * @param jobs_list
+ * @param listSize
+ */
 void sortAscendingOrder(job *jobs_list, int listSize)
 {
     int i, done = 0;
@@ -63,18 +90,13 @@ void sortAscendingOrder(job *jobs_list, int listSize)
         }
     }
 }
+
+/**
+ * @brief Main
+ *
+ */
 __declspec(dllexport) int *test(job *jobs_list, int size)
 {
-    // for (int i = 0; i < size; i++)
-    // {
-    //     printf("%d\n", jobs_list[i].id);
-    // }
-    // int *array = (int *)malloc(10 * sizeof(int));
-    // for (int i = 0; i < 10; i++)
-    // {
-    //     array[i] = i;
-    // }
-    // return array;
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
     date date_of_the_day;
@@ -91,7 +113,6 @@ __declspec(dllexport) int *test(job *jobs_list, int size)
     {
 
         list_of_id[i] = jobs_list[i].id;
-        // printf("%f\n", jobs_list[i].prtf_value);
     } /* On a la liste d'ID trié dans le bon ordre d'exécution */
 
     return list_of_id;
